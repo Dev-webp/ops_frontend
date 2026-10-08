@@ -299,8 +299,8 @@ export default function Cases({ user, showToast }) {
       </div>
 
       {/* ACTIVE CASES */}
-      <div className="section-card">
-        <div className="active-cases-header">
+<div id="activeCasesSection" className="section-card">
+          <div className="active-cases-header">
           <div>
             <h3>Active Cases</h3>
             <div className="active-cases-subtitle">Manage and track all client cases across different stages</div>
@@ -412,7 +412,7 @@ export default function Cases({ user, showToast }) {
                       </button>
                       <button
                         type="button"
-                        className="btn-sm outline"
+                       className="btn-sm outline"
                         style={{ marginLeft: 4 }}
                         onClick={() => setDetailsCase(c)}
                       >
@@ -1153,8 +1153,11 @@ function CaseDetailsModal({ caseData, onClose, showToast }) {
   const agreement = c.agreement_pdf_url ? fileUrl(c.agreement_pdf_url) : null;
 
   return (
-    <Modal open={!!caseData} className="case-details-modal-box">
-      {/* HEADER */}
+<Modal
+  open={!!caseData}
+  id="caseDetailsModal"
+  className="case-details-modal-box"
+>      {/* HEADER */}
       <div className="case-details-header">
         <div>
           <div className="case-details-title-row">

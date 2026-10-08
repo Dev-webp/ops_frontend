@@ -40,11 +40,9 @@ export const allowedSectionsFor = (user) => [
 // ---------------------------------------------------------------------------
 // <Modal> — thin wrapper over the existing .modal-overlay / .modal-box CSS
 // ---------------------------------------------------------------------------
-export function Modal({ open, children, className = '', style }) {
-  if (!open) return null;
+export function Modal({ open, children, className = '', style, id }) {  if (!open) return null;
   return (
-    <div className="modal-overlay" style={{ display: 'flex' }}>
-      <div className={`modal-box ${className}`.trim()} style={style}>
+<div id={id} className="modal-overlay" style={{ display: 'flex' }}>      <div className={`modal-box ${className}`.trim()} style={style}>
         {children}
       </div>
     </div>
