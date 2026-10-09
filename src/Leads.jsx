@@ -15,17 +15,20 @@ const BADGE = {
 };
 
 const TAB_FILTERS = {
-  my: () => true,
-  auditor: (l) => ['AGREEMENT_SIGNED', 'AUDIT_PENDING'].includes(l.current_status),
+  new: (l) => l.current_status === 'PENDING_INVOICE_REVIEW',
+
+  progress: (l) =>
+    !['PENDING_INVOICE_REVIEW', 'AUDIT_FAILED'].includes(l.current_status),
+
   returned: (l) => l.current_status === 'AUDIT_FAILED',
+
   all: () => true,
 };
 
 const TABS = [
-  { key: 'my', icon: '👤', title: 'My Leads (Counsellor)', sub: 'Leads assigned to me' },
-  { key: 'auditor', icon: '➤', title: 'Sent to Auditor', sub: 'Leads sent for quality audit' },
-  { key: 'returned', icon: '✕', title: 'Returned / Rejected', sub: 'Leads returned from audit' },
-  { key: 'all', icon: '👥', title: 'All Leads', sub: 'View all leads in system' },
+  { key: 'new', icon: '📋', title: 'New Leads' },
+  { key: 'progress', icon: '✓', title: 'In Progress' },
+  { key: 'returned', icon: '✕', title: 'Returned / Rejected' },
 ];
 
 const EMPTY_FORM = {
@@ -47,7 +50,7 @@ export default function Leads({ user, showToast }) {
   const canConfirmInvoice = hasProfile(user, 'COUNSELOR', 'OPS_MANAGER', 'MD');
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('my');
+const [activeTab, setActiveTab] = useState('new');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -80,20 +83,19 @@ export default function Leads({ user, showToast }) {
 
   // ---- derived data ----
   const counts = useMemo(
-    () => ({
-      my: leads.filter(TAB_FILTERS.my).length,
-      auditor: leads.filter(TAB_FILTERS.auditor).length,
-      returned: leads.filter(TAB_FILTERS.returned).length,
-      all: leads.length,
-    }),
-    [leads]
-  );
+  () => ({
+    new: leads.filter(TAB_FILTERS.new).length,
+    progress: leads.filter(TAB_FILTERS.progress).length,
+    returned: leads.filter(TAB_FILTERS.returned).length,
+  }),
+  [leads]
+);
   const pendingInvoice = leads.filter((l) => l.current_status === 'PENDING_INVOICE_REVIEW').length;
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return leads.filter(TAB_FILTERS[activeTab] || TAB_FILTERS.my).filter((l) => {
-      if (!term) return true;
+return leads.filter(TAB_FILTERS[activeTab] || TAB_FILTERS.new).filter((l) => {
+        if (!term) return true;
       return ['student_name', 'target_country', 'visa_category'].some((k) =>
         String(l[k] || '').toLowerCase().includes(term)
       );
@@ -202,79 +204,246 @@ export default function Leads({ user, showToast }) {
 
   return (
     <>
-      <div className="topbar">
-        <h1>Leads &amp; Agreements</h1>
-        <div className="who">New lead + signed agreement moves straight into the Quality Audit queue</div>
-        <button
-          type="button"
-          className="btn-primary"
-          style={{ marginLeft: 'auto', width: 'auto', padding: '11px 20px', whiteSpace: 'nowrap' }}
-          onClick={() => setShowAddForm((s) => !s)}
-        >
+
+<div className="topbar">
+  
+<h1
+  style={{
+    fontWeight: 900,
+    fontSize: '28px',
+    letterSpacing: '-0.7px',
+    color: '#102a56',
+    margin: 0,
+    lineHeight: 1.2,
+    WebkitTextStroke: '0.5px currentColor'
+  }}
+>
+  Leads &amp; Agreements
+</h1>
+
+
+  <button
+    type="button"
+    className="btn-primary"
+    style={{ marginLeft: 'auto', width: 'auto', padding: '11px 20px', whiteSpace: 'nowrap' }}
+    onClick={() => setShowAddForm((s) => !s)}
+  >
+
           + Add New Lead (Manual)
         </button>
       </div>
 
-      {/* ADD NEW LEAD */}
-      {showAddForm && (
-        <div className="section-card">
-          <h3>Add New Lead (Agreement Signed)</h3>
-          <form onSubmit={submitLead}>
-            <div className="form-inline-grid">
-              <div className="field">
-                <label>Student Name</label>
-                <input required value={form.student_name} onChange={setField('student_name')} />
-              </div>
-              <div className="field">
-                <label>Phone</label>
-                <input required value={form.phone} onChange={setField('phone')} />
-              </div>
-              <div className="field">
-                <label>Email</label>
-                <input type="email" value={form.email} onChange={setField('email')} />
-              </div>
-              <div className="field">
-                <label>Target Country</label>
-                <input required value={form.target_country} onChange={setField('target_country')} />
-              </div>
-              <div className="field">
-                <label>Visa Category</label>
-                <input required value={form.visa_category} onChange={setField('visa_category')} />
-              </div>
-              <div className="field">
-                <label>Package Amount (₹)</label>
-                <input type="number" min="0" value={form.package_amount} onChange={setField('package_amount')} />
-              </div>
-            </div>
-            <button className="btn-primary" style={{ width: 200 }} type="submit">
-              + Add Lead
-            </button>
-          </form>
+      
+{/* ADD NEW LEAD */}
+{showAddForm && (
+  <div className="section-card manual-lead-form">
+    <div className="manual-lead-header">
+      <div>
+        <h3>Add New Lead</h3>
+        <p>Enter student, invoice and agreement details.</p>
+      </div>
+
+      <button
+        type="button"
+        className="btn-secondary"
+        onClick={() => setShowAddForm(false)}
+      >
+        Close
+      </button>
+    </div>
+
+    <form onSubmit={submitLead}>
+      <h4>Student Details</h4>
+
+      <div className="manual-lead-grid">
+        <div className="field">
+          <label>Student Name *</label>
+          <input
+            required
+            value={form.student_name}
+            onChange={setField('student_name')}
+            placeholder="Enter student name"
+          />
         </div>
-      )}
+
+        <div className="field">
+          <label>Phone *</label>
+          <input
+            required
+            value={form.phone}
+            onChange={setField('phone')}
+            placeholder="Enter phone number"
+          />
+        </div>
+
+        <div className="field">
+          <label>Email</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={setField('email')}
+            placeholder="Enter email address"
+          />
+        </div>
+
+        <div className="field">
+          <label>Country / Service Type *</label>
+          <input
+            required
+            value={form.target_country}
+            onChange={setField('target_country')}
+            placeholder="Enter country or service"
+          />
+        </div>
+
+        <div className="field">
+          <label>Visa Category *</label>
+          <input
+            required
+            value={form.visa_category}
+            onChange={setField('visa_category')}
+            placeholder="Enter visa category"
+          />
+        </div>
+      </div>
+
+      <h4>Invoice Details</h4>
+
+      <div className="manual-lead-grid">
+        <div className="field">
+          <label>Invoice Number</label>
+          <input
+            value={form.invoice_number || ''}
+            onChange={setField('invoice_number')}
+            placeholder="Enter invoice number"
+          />
+        </div>
+
+        <div className="field">
+          <label>Total Amount (₹) *</label>
+          <input
+            type="number"
+            min="0"
+            required
+            value={form.total_amount || ''}
+            onChange={setField('total_amount')}
+            placeholder="0.00"
+          />
+        </div>
+
+        <div className="field">
+          <label>Paid Amount (₹)</label>
+          <input
+            type="number"
+            min="0"
+            value={form.paid_amount || ''}
+            onChange={setField('paid_amount')}
+            placeholder="0.00"
+          />
+        </div>
+
+        <div className="field">
+          <label>Outstanding Amount (₹)</label>
+          <input
+            value={Math.max(
+              0,
+              Number(form.total_amount || 0) -
+                Number(form.paid_amount || 0)
+            ).toLocaleString('en-IN')}
+            readOnly
+          />
+        </div>
+
+        <div className="field">
+          <label>Payment Status</label>
+          <select
+            value={form.payment_status || 'Pending'}
+            onChange={setField('payment_status')}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Partial">Partial</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </div>
+
+        <div className="field">
+          <label>Package Amount (₹)</label>
+          <input
+            type="number"
+            min="0"
+            value={form.package_amount}
+            onChange={setField('package_amount')}
+            placeholder="0.00"
+          />
+        </div>
+      </div>
+
+      <h4>Agreement Document</h4>
+
+      <div className="field manual-agreement-upload">
+        <label htmlFor="manual-agreement-pdf">
+          Upload Agreement PDF
+        </label>
+
+        <input
+          id="manual-agreement-pdf"
+          type="file"
+          accept="application/pdf,.pdf"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+
+            if (file && file.type !== 'application/pdf') {
+              showToast('Please select a PDF file.', true);
+              e.target.value = '';
+              return;
+            }
+
+            setForm((f) => ({
+              ...f,
+              agreement_pdf_file: file || null
+            }));
+          }}
+        />
+
+        <small>PDF format only.</small>
+      </div>
+
+      <div className="manual-lead-actions">
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => setShowAddForm(false)}
+        >
+          Cancel
+        </button>
+
+        <button type="submit" className="btn-primary">
+          Save Lead
+        </button>
+      </div>
+    </form>
+  </div>
+)}
 
       {/* STAT CARDS */}
-      <div className="stat-grid">
-        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => switchTab('all')}>
-          <div className="icon">👤</div>
-          <div className="label">Total Leads</div>
-          <div className="value">{leads.length}</div>
-        </div>
-        <div className="stat-card orange" style={{ cursor: 'pointer' }} onClick={() => switchTab('my')}>
-          <div className="icon">📤</div>
-          <div className="label">Pending Invoice Review</div>
-          <div className="value">{pendingInvoice}</div>
-        </div>
-        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => switchTab('auditor')}>
-          <div className="icon">🎤</div>
-          <div className="label">Sent to Auditor</div>
-          <div className="value">{counts.auditor}</div>
-        </div>
-        <div className="stat-card red" style={{ cursor: 'pointer' }} onClick={() => switchTab('returned')}>
-          <div className="icon">❌</div>
-          <div className="label">Returned / Rejected</div>
-          <div className="value">{counts.returned}</div>
-        </div>
+<div className="stat-grid">
+  <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => switchTab('new')}>
+    <div className="icon">📋</div>
+    <div className="label">New Leads</div>
+    <div className="value">{counts.new}</div>
+  </div>
+
+  <div className="stat-card orange" style={{ cursor: 'pointer' }} onClick={() => switchTab('progress')}>
+    <div className="icon">🔄</div>
+    <div className="label">In Progress</div>
+    <div className="value">{counts.progress}</div>
+  </div>
+
+  <div className="stat-card red" style={{ cursor: 'pointer' }} onClick={() => switchTab('returned')}>
+    <div className="icon">❌</div>
+    <div className="label">Returned / Rejected</div>
+    <div className="value">{counts.returned}</div>
+  </div>
       </div>
 
       {/* FILTER BAR */}
@@ -283,19 +452,17 @@ export default function Leads({ user, showToast }) {
           <button
             key={t.key}
             type="button"
+            data-tab={t.key}
             className={`tab-btn ${activeTab === t.key ? 'active' : ''}`}
             onClick={() => switchTab(t.key)}
           >
             <span className="lead-filter-icon">{t.icon}</span>
             <span className="lead-filter-text">
               <strong>{t.title}</strong>
-              <small>{t.sub}</small>
             </span>
             <span className="lead-filter-count">{counts[t.key]}</span>
           </button>
         ))}
-
-        <div className="lead-filter-divider"></div>
 
         <div className="lead-search-box">
           <span className="lead-search-icon">⌕</span>
@@ -309,10 +476,6 @@ export default function Leads({ user, showToast }) {
             }}
           />
         </div>
-
-        <button type="button" className="lead-filter-action">
-          ⚱ Filters
-        </button>
       </div>
 
       {/* LEADS TABLE */}

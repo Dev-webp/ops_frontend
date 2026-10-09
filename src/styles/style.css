@@ -2896,13 +2896,23 @@ textarea, .field select {
 }
 
 
-.lead-filter-text strong {
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.2;
-  white-space: nowrap;
+.lead-filter-bar .lead-filter-text {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  visibility: visible !important;
 }
 
+.lead-filter-bar .lead-filter-text strong {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  white-space: normal !important;
+  color: inherit !important;
+}
 
 .lead-filter-text small {
   font-size: 10px;
@@ -3403,7 +3413,7 @@ textarea, .field select {
       height: 23px;
       border-radius: 50%;
       background: #fff;
-      border: 1px solid #dfe6ef;
+border: 1px solid #6b7280;
       color: #6d7e96;
       display: flex;
       align-items: center;
@@ -4804,4 +4814,548 @@ textarea, .field select {
         padding-right: 22px;
       }
     }
-  
+  ```css
+/* =====================================================
+   LEADS FILTERS — NEW / PROGRESS / RETURNED
+   UI ONLY — EXISTING LOGIC PRESERVED
+===================================================== */
+
+.lead-filter-bar {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 20px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  align-items: stretch;
+}
+
+/* Common button layout */
+.lead-filter-bar .tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  min-height: 72px;
+  padding: 16px 18px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+  transform: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Orange — New Leads */
+.lead-filter-bar .tab-btn[data-tab="new"] {
+  color: #b45309 !important;
+  background: #fff7ed !important;
+  border-color: #f59e0b !important;
+}
+
+/* Green — In Progress */
+.lead-filter-bar .tab-btn[data-tab="progress"] {
+  color: #047857 !important;
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+
+/* Red — Returned / Rejected */
+.lead-filter-bar .tab-btn[data-tab="returned"] {
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+}
+
+/* Active buttons retain their own category colors */
+.lead-filter-bar .tab-btn[data-tab="new"].active {
+  color: #ffffff !important;
+  background: #ea8a12 !important;
+  border-color: #ea8a12 !important;
+  box-shadow: 0 4px 12px rgba(234, 138, 18, 0.2);
+}
+
+.lead-filter-bar .tab-btn[data-tab="progress"].active {
+  color: #ffffff !important;
+  background: #159b62 !important;
+  border-color: #159b62 !important;
+  box-shadow: 0 4px 12px rgba(21, 155, 98, 0.2);
+}
+
+.lead-filter-bar .tab-btn[data-tab="returned"].active {
+  color: #ffffff !important;
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
+/* Button hover */
+.lead-filter-bar .tab-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 35, 70, 0.08);
+}
+
+/* Icon */
+.lead-filter-bar .lead-filter-icon {
+  flex-shrink: 0;
+}
+
+/* Count */
+.lead-filter-bar .lead-filter-count {
+  flex-shrink: 0;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.lead-filter-bar .tab-btn.active .lead-filter-count {
+  background: #ffffff;
+  color: inherit;
+}
+
+/* Search appears on its own row */
+.lead-filter-bar .lead-search-box {
+  border: 1px solid #6b7280 !important;  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #dfe5ee;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.lead-filter-bar .lead-search-box input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #183b63;
+  font-size: 13px;
+}
+
+/* Remove unused divider and Filters button */
+.lead-filter-bar .lead-filter-divider,
+.lead-filter-bar .lead-filter-action {
+  display: none !important;
+}
+
+/* Responsive layout */
+@media (max-width: 700px) {
+  .lead-filter-bar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .lead-filter-bar .tab-btn {
+    min-height: 60px;
+  }
+
+  .lead-filter-bar .lead-search-box {
+    grid-column: 1;
+  }
+}
+
+/* Leads & Agreements filter layout fix */
+.lead-filter-bar {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  padding: 10px !important;
+  margin-bottom: 18px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  background: #fff !important;
+  border: 1px solid #e5eaf2 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 14px rgba(15, 35, 70, 0.06) !important;
+}
+
+/* All three filter buttons */
+.lead-filter-bar .tab-btn {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 66px !important;
+  padding: 12px 16px !important;
+  box-sizing: border-box !important;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-radius: 12px !important;
+  font-size: 15px !important;
+  text-align: left !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* New Leads — orange */
+.lead-filter-bar .tab-btn[data-tab="new"],
+.lead-filter-bar .tab-btn[data-tab="new"].active {
+  background: #fff3e6 !important;
+  border-color: #f58216 !important;
+  color: #c26100 !important;
+}
+
+/* In Progress — green */
+.lead-filter-bar .tab-btn[data-tab="progress"],
+.lead-filter-bar .tab-btn[data-tab="progress"].active {
+  background: #f0fbf5 !important;
+  border-color: #16a765 !important;
+  color: #138653 !important;
+}
+
+/* Returned / Rejected — red */
+.lead-filter-bar .tab-btn[data-tab="returned"],
+.lead-filter-bar .tab-btn[data-tab="returned"].active {
+  background: #fff3f3 !important;
+  border-color: #ef4444 !important;
+  color: #dc2626 !important;
+}
+
+/* Keep text visible */
+.lead-filter-bar .lead-filter-text {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+.lead-filter-bar .lead-filter-text strong {
+  display: inline !important;
+  visibility: visible !important;
+  white-space: normal !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: inherit !important;
+}
+
+.lead-filter-bar .lead-filter-icon {
+  display: inline-flex !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+}
+
+.lead-filter-bar .lead-filter-count {
+  display: inline-flex !important;
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: inherit !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+/* Search on its own full-width row */
+.lead-filter-bar .lead-search-box {
+  grid-column: 1 / -1 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+border: 1px solid #6b7280 !important;
+  border-radius: 10px !important;
+}
+
+.lead-filter-bar .lead-search-box input {
+  display: block !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: #183b63 !important;
+  font-size: 13px !important;
+}
+
+/* Hide removed controls */
+.lead-filter-bar .lead-filter-divider,
+.lead-filter-bar .lead-filter-action {
+  display: none !important;
+}
+
+/* Mobile layout */
+@media (max-width: 700px) {
+  .lead-filter-bar {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lead-filter-bar .lead-search-box {
+    grid-column: 1 !important;
+  }
+}
+```
+
+/* Leads table — stronger column headings */
+.leads-table thead th,
+table thead th {
+  font-size: 12px;
+  font-weight: 800;
+  color: #102a56;
+  letter-spacing: 0.3px;
+}
+
+/* Leads & Agreements heading */
+.leads-page h1,
+.leads-agreements-page h1 {
+  font-weight: 1000 !important;
+}
+
+/* Hide the description beside the heading */
+.leads-page .page-subtitle,
+.leads-agreements-page .page-subtitle {
+  display: none !important;
+}
+
+/* Manual Lead form layout */
+.manual-lead-form {
+  padding: 28px !important;
+  margin-bottom: 20px;
+}
+
+.manual-lead-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.manual-lead-header h3 {
+  margin: 0;
+  color: #102a56;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.manual-lead-header p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.manual-lead-form h4 {
+  margin: 24px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #183b63;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.manual-lead-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+
+.manual-lead-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.manual-lead-form .field label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.manual-lead-form .field input,
+.manual-lead-form .field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #183b63;
+  font-size: 13px;
+}
+
+.manual-lead-form .field input:focus,
+.manual-lead-form .field select:focus {
+  outline: none;
+  border-color: #64748b;
+}
+
+.manual-lead-form .field input[readonly] {
+  background: #f1f5f9;
+}
+
+.manual-agreement-upload {
+  max-width: 100%;
+  padding: 18px;
+  border: 1px dashed #94a3b8;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.manual-agreement-upload small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.manual-lead-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 700px) {
+  .manual-lead-form {
+    padding: 18px !important;
+  }
+
+  .manual-lead-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manual-lead-header {
+    flex-wrap: wrap;
+  }
+}
+
+/* Compact 3-column Manual Lead form */
+.manual-lead-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px 16px !important;
+  max-width: 1100px;
+}
+
+.manual-lead-form .field input:not([type="file"]),
+.manual-lead-form .field select {
+  width: 100% !important;
+  height: 36px !important;
+  box-sizing: border-box !important;
+}
+
+.manual-agreement-upload {
+  max-width: 700px;
+}
+
+@media (max-width: 900px) {
+  .manual-lead-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .manual-lead-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Balanced full-width Manual Lead form */
+.manual-lead-form {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto 16px !important;
+  padding: 22px 28px !important;
+  box-sizing: border-box !important;
+}
+
+.manual-lead-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  max-width: none !important;
+  gap: 18px 24px !important;
+}
+
+.manual-lead-form .field {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.manual-lead-form .field input:not([type="file"]),
+.manual-lead-form .field select {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.manual-agreement-upload {
+  width: 100% !important;
+  max-width: 600px !important;
+  box-sizing: border-box !important;
+}
+
+.manual-lead-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+}
+
+.manual-lead-actions .btn-primary {
+  width: auto !important;
+  min-width: 140px !important;
+}
+
+@media (max-width: 900px) {
+  .manual-lead-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .manual-lead-form {
+    padding: 16px !important;
+  }
+
+  .manual-lead-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .manual-agreement-upload {
+    max-width: 100% !important;
+  }
+}
