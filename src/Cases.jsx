@@ -407,9 +407,28 @@ export default function Cases({ user, showToast }) {
                     </td>
                     <td>{c.updated_at ? new Date(c.updated_at).toLocaleDateString() : '-'}</td>
                     <td>
-                      <button type="button" className="btn-sm outline" onClick={() => setDocsCase(c)}>
-                        📁 Documents
-                      </button>
+<button
+  type="button"
+  className="btn-sm outline"
+  onClick={() => setDocsCase(c)}
+>
+  📁 Documents
+  {Number(c.pending_document_review_count || 0) > 0 && (
+    <span
+      style={{
+        marginLeft: 6,
+        padding: '3px 7px',
+        borderRadius: 10,
+        backgroundColor: '#dcfce7',
+        color: '#15803d',
+        fontSize: 10,
+        fontWeight: 800,
+      }}
+    >
+      NEW
+    </span>
+  )}
+</button>
                       <button
                         type="button"
                        className="btn-sm outline"
