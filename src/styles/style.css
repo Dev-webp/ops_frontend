@@ -4814,7 +4814,7 @@ border: 1px solid #6b7280;
         padding-right: 22px;
       }
     }
-  ```css
+  
 /* =====================================================
    LEADS FILTERS — NEW / PROGRESS / RETURNED
    UI ONLY — EXISTING LOGIC PRESERVED
@@ -4862,6 +4862,7 @@ border: 1px solid #6b7280;
   background: #fff7ed !important;
   border-color: #f59e0b !important;
 }
+
 
 /* Green — In Progress */
 .lead-filter-bar .tab-btn[data-tab="progress"] {
@@ -5127,7 +5128,7 @@ border: 1px solid #6b7280 !important;
     grid-column: 1 !important;
   }
 }
-```
+
 
 /* Leads table — stronger column headings */
 .leads-table thead th,
